@@ -72,7 +72,7 @@ Follow these steps to contribute to the project:
 ### If you use GitHub
 
 1. Make a fork of the [Agate repository][agate-repo].
-1. Within your fork, create a branch for your contribution and use a meaningful name.
+1. Within your fork, create a branch with a meaningful name for your contribution.
 1. Create your contribution, meeting all [contribution quality standards](#quality-standards).
 1. Update the changelog with any added, removed, changed, or fixed functionality. Adhere to the changelog format.
 1. [Create a pull request][create-a-pr] against the `master` branch of the repository.
