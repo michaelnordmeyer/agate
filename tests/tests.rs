@@ -474,7 +474,7 @@ fn serve_secret() {
 
 #[test]
 /// - secret file served if path is in sidecar
-fn secret_secret_meta_config() {
+fn serve_secret_meta_config() {
     let page = get(&[], "gemini://localhost/.servable-secret").expect("could not get page");
 
     assert_eq!(page.header.status, Status::Success);
@@ -482,7 +482,7 @@ fn secret_secret_meta_config() {
 
 #[test]
 /// - secret file served if path with subdir is in sidecar
-fn secret_secret_meta_config_subdir() {
+fn serve_secret_meta_config_subdir() {
     let page = get(&[], "gemini://localhost/.well-known/servable-secret").expect("could not get page");
 
     assert_eq!(page.header.status, Status::Success);
