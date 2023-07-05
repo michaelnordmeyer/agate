@@ -1,13 +1,15 @@
 # Contributing
 
-## Contents
-
-- [Introduction](#introduction)
-- [Code of Conduct](#code-of-conduct)
-- [Reporting Bugs and Suggesting Improvements](#reporting-bugs-and-suggesting-improvements)
-- [Contribution Workflow](#contribution-workflow)
-- [Quality Standards](#quality-standards)
-- [Release Process](#release-process)
+- [Contributing](#contributing)
+  - [Introduction](#introduction)
+  - [Code of Conduct](#code-of-conduct)
+  - [Reporting security issues](#reporting-security-issues)
+  - [Reporting Bugs and Suggesting Improvements](#reporting-bugs-and-suggesting-improvements)
+  - [Contribution Workflow](#contribution-workflow)
+    - [If you use git but not GitHub](#if-you-use-git-but-not-github)
+    - [If you use GitHub](#if-you-use-github)
+  - [Quality Standards](#quality-standards)
+  - [Release Process](#release-process)
 
 ## Introduction
 
@@ -27,13 +29,13 @@ By participating in this project you agree to abide by its terms.
 
 If you find a security issue, please disclose it to Johann150 privately, e.g. per [email](mailto:johann+agate@qwertqwefsday.eu). If you know how to fix the issue, please follow the contribution workflow as if you do not use GitHub, regardless of if you actually use it. I.e. patches should also be submitted privately.
 
-An effort will be made to respond to such issues quickly, at least responding with a "read receipt". If you do not hear back anything regarding the security issue within three days, try contacting other maintainers listed in the Cargo.toml file or on crates.io for this crate.
+An effort will be made to respond to such issues quickly, at least responding with a "read receipt". If you do not hear back anything regarding the security issue within three days, try contacting other maintainers listed in the `Cargo.toml` file or on [crates.io](https://crates.io/) for this crate.
 
 There are no bug bounties. You can not expect any compensation apart from attribution in the changelog and/or for any patches you supply.
 
 ## Reporting Bugs and Suggesting Improvements
 
-Bugs (unwanted behaviour) and suggested improvements are tracked as [GitHub issues][github-issues].
+Bugs (unwanted behavior) and suggested improvements are tracked as [GitHub issues][github-issues].
 Before reporting an issue, please check the following points:
 
 1. The issue is caused by Agate itself and not by how it is used.
@@ -46,7 +48,7 @@ When reporting an issue, please add as much relevant information as possible.
 This will help developers and maintainers to resolve your issue. Some things you might consider:
 
 * Use a descriptive title.
-* State which version you are using (use a version tag like `v2.4.1` or the commit hash).
+* State which version you are using (use a version tag like `v1.2.3` or the commit hash).
 * If you are using tools provided with agate (like a startup script), please also state that.
 * Describe how the problem can be reproduced.
 * Explain what exactly is the problem and what you expect instead.
@@ -57,20 +59,20 @@ This will help developers and maintainers to resolve your issue. Some things you
 
 Follow these steps to contribute to the project:
 
-### If you use git but not GitHub:
+### If you use git but not GitHub
 
 1. Clone the repository where you want.
 1. Make the appropriate changes, meeting all [contribution quality standards](#quality-standards).
 1. Update the changelog with any added, removed, changed, or fixed functionality. Adhere to the changelog format.
 1. Mail the patches or a pull request to [Johann150](mailto:johann+agate@qwertqwefsday.eu).
-    - Patches are prefered for small changes.
+    - Patches are preferred for small changes.
     - Pull requests have to contain the repository URL and branch name.
-1. You will be notified of any further actions (e.g. requested changes, merged) by the same address you sent from. So please make sure you can receive mail on that address.
+1. You will be notified of any further actions (e.g. requested changes, merged) by the same address you sent from. So please make sure you can receive email on that address.
 
-### If you use GitHub:
+### If you use GitHub
 
 1. Make a fork of the [Agate repository][agate-repo].
-1. Within your fork, create a branch for your contribution. Use a meaningful name.
+1. Within your fork, create a branch for your contribution and use a meaningful name.
 1. Create your contribution, meeting all [contribution quality standards](#quality-standards).
 1. Update the changelog with any added, removed, changed, or fixed functionality. Adhere to the changelog format.
 1. [Create a pull request][create-a-pr] against the `master` branch of the repository.
@@ -81,10 +83,9 @@ Follow these steps to contribute to the project:
 
 ## Quality Standards
 
-Most quality and style standards are checked automatically by the CI build.
-Contributions should:
+Most quality and style standards are checked automatically by the CI build. Contributions should:
 
-- Separate each **logical change** into its own commit.
+- Separate each _logical change_ into its own commit.
 - Ensure the code compiles correctly, if you can also run `cargo clippy`.
 - Format code with `cargo fmt`.
 - Avoid adding `unsafe` code.
@@ -96,14 +97,18 @@ Contributions should:
 
 [commit-messages]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 
+cargo install rustfmt-nightly
+cargo install clippy
+
 ## Release Process
+
 (This is only relevant if you are a maintainer.)
 
 1. Bump the version number appropriately. (Update `Cargo.lock` too!)
 1. Run `cargo package` to make sure everything compiles correctly.
 1. Update the changelog with the new version ranges.
-1. Update agate's homepage (`content/index.gmi`) with changes to the README and CHANGELOG
-1. Add a git tag for the version, e.g. with `git tag v2.4.1`.
+1. Update agate's homepage (`content/index.gmi`) with changes to the `README` and `CHANGELOG`
+1. Add a git tag for the version, e.g. with `git tag v1.2.3`.
 1. Push the changelog commit and tag to the repository.
     Upon detecting the push of a tag beginning with "v", CI should start building the prebuilt binaries.
     These binaries will be uploaded to a new draft GitHub release with the same name as the version tag. (You need push access to see it).
