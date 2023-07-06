@@ -102,7 +102,8 @@ The `.meta` file has the following format (*1):
 * Everything behind a `#` on the same line is a comment and will be ignored.
 * All other lines must have the form `<path>:<metadata>`, i.e. start with a file path, followed by a colon and then the metadata.
 
-`<path>` is a case sensitive file path, which may or may not exist on disk. If <path> leads to a directory, it is ignored.
+`<path>` is a case sensitive file path, which may or may not exist on disk. If `<path>` leads to a directory, it is ignored.
+
 If central configuration file mode is not used, using a path that is not a file in the current directory is undefined behavior (for example `../index.gmi` would be undefined behavior).
 
 You can use Unix style patterns in existing paths. For example `content/*` will match any file within `content`, and `content/**` will additionally match any files in subdirectories of `content`.
@@ -119,13 +120,13 @@ Rules can overwrite other rules, so if a file is matched by multiple rules, the 
 
 1. empty  
     Agate will not send a default language parameter, even if it was specified on the command line.
-2. starting with a semicolon followed by MIME parameters  
-    Agate will append the specified string onto the MIME type, if the file is found.
-3. starting with a gemini status code (i.e. a digit 1-6 inclusive followed by another digit) and a space  
-    Agate will send the metadata whether the file exists or not. The file will not be sent or accessed.
-4. a MIME type, may include parameters  
+1. starting with a semicolon followed by MIME parameters  
+    Agate will append the specified string onto the detected MIME type, if the file is found.
+1. a MIME type, may include parameters  
     Agate will use this MIME type instead of what it would guess, if the file is found.
     The default language parameter will not be used, even if it was specified on the command line.
+1. starting with a gemini status code (i.e. a digit 1-6 inclusive followed by another digit) and a space  
+    Agate will send the metadata whether the file exists or not. The file will not be sent or accessed.
 
 If a line violates the format or looks like case 3, but is incorrect, it might be ignored. You should check your logs. Please know that this configuration file is first read when a file from the respective directory is accessed. So no log messages after startup does not mean the `.meta` file is okay.
 
