@@ -1,2 +1,5 @@
-This directory contains some useful tools if you want to use Agate like service files or installer scripts. If you use Agate on a system not present here, your pull request is welcome!
-We also welcome pull requests for other files for tools you might find helpful to use in conjunction with Agate.
+# Tools
+
+This directory contains some useful tools for using Agate like service files or installer scripts.
+
+We welcome pull requests for systems not present here other files for tools you might find helpful to use in conjunction with Agate.

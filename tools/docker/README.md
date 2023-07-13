@@ -1,11 +1,10 @@
-# Install agate in a docker container
-
-(these instructions assume you use linux and have some experience with both docker and the command line)
+# Install Agate in a docker container
 
 ## Obtain the source code
 
 There are currently no container images online so you have to build the image yourself before you can use it.
 There are two options available for this: downloading a release or cloning the repository with `git`.
+
 I will explain both methods but if you're unsure which method to use, I would recommend the release for new comers because it's probably more tested so you'll encounter less problems.
 
 ### Download the release tarball
@@ -13,7 +12,7 @@ I will explain both methods but if you're unsure which method to use, I would re
 Download the tarball. Go to [https://github.com/mbrubeck/agate/releases/latest](https://github.com/mbrubeck/agate/releases/latest), and copy the url of the source code tarball.
 
 ```sh
-wget URL
+wget <URL>
 ```
 
 Then unpack the tarball and remove it afterwards:

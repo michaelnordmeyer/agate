@@ -47,11 +47,11 @@ Before reporting an issue, please check the following points:
 When reporting an issue, please add as much relevant information as possible.
 This will help developers and maintainers to resolve your issue. Some things you might consider:
 
-* Use a descriptive title.
-* State which version you are using (use a version tag like `v1.2.3` or the commit hash).
-* If you are using tools provided with agate (like a startup script), please also state that.
-* Describe how the problem can be reproduced.
-* Explain what exactly is the problem and what you expect instead.
+- Use a descriptive title.
+- State which version you are using (use a version tag like `v1.2.3` or the commit hash).
+- If you are using tools provided with agate (like a startup script), please also state that.
+- Describe how the problem can be reproduced.
+- Explain what exactly is the problem and what you expect instead.
 
 [github-issues]: https://github.com/brendanzab/codespan/issues
 
@@ -97,17 +97,19 @@ Most quality and style standards are checked automatically by the CI build. Cont
 
 [commit-messages]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 
+```sh
 cargo install rustfmt-nightly
 cargo install clippy
+```
 
 ## Release Process
 
 (This is only relevant if you are a maintainer.)
 
-1. Bump the version number appropriately. (Update `Cargo.lock` too!)
+1. Bump the version number appropriately. (Update `Cargo.lock` too)
 1. Run `cargo package` to make sure everything compiles correctly.
 1. Update the changelog with the new version ranges.
-1. Update agate's homepage (`content/index.gmi`) with changes to the `README` and `CHANGELOG`
+1. Update Agate's homepage (`content/index.gmi`) with changes to the `README` and `CHANGELOG`
 1. Add a git tag for the version, e.g. with `git tag v1.2.3`.
 1. Push the changelog commit and tag to the repository.
     Upon detecting the push of a tag beginning with "v", CI should start building the prebuilt binaries.
