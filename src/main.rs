@@ -4,7 +4,7 @@ mod certificates;
 mod codes;
 mod metadata;
 use codes::*;
-use metadata::{FileOptions, PresetMeta};
+use metadata::{FileOptions, PresetMeta, SIDECAR_FILENAME};
 
 use {
     once_cell::sync::Lazy,
@@ -178,7 +178,7 @@ fn args() -> Result<Args> {
     opts.optopt(
         "",
         "content",
-        "Root of the content directory (default ./content/)",
+        "Root of the content directory (default ./content/<hostname>)",
         "DIR",
     );
     opts.optopt(
@@ -369,11 +369,24 @@ fn args() -> Result<Args> {
         ];
     }
 
+    let content_dir = check_path(matches.opt_get_default("content", "content".into())?)?;
+
+    let mut path = std::path::PathBuf::from(&content_dir);
+    path.push(SIDECAR_FILENAME);
+    if path.exists() {
+        if hostnames.len() == 1 {
+            log::error!("Found old {} at {:?}. Please move this file and your content to the {:?} directory.", SIDECAR_FILENAME, path, hostnames[0].to_string());
+        } else {
+            log::error!("Found old {} at {:?}. Please move this file to the respective vhost directories and adapt it to the new location.", SIDECAR_FILENAME, path);
+        }
+        std::process::exit(1);
+    }
+
     Ok(Args {
         addrs,
         #[cfg(unix)]
         sockets,
-        content_dir: check_path(matches.opt_get_default("content", "content".into())?)?,
+        content_dir,
         certs: Arc::new(certs),
         hostnames,
         language: matches.opt_str("lang"),
@@ -608,10 +621,9 @@ where
     async fn send_response(&mut self, url: Url) -> Result {
         let mut path = std::path::PathBuf::from(&ARGS.content_dir);
 
-        if ARGS.hostnames.len() > 1 {
-            // basic vhosts, existence of host_str was checked by parse_request already
-            path.push(url.host_str().expect("no hostname"));
-        }
+        // basic vhosts, existence of host_str was checked by parse_request already
+        path.push(url.host_str().expect("no hostname"));
+        log::info!("Applicable root path: {:?}", path);
 
         if let Some(mut segments) = url.path_segments() {
             // append percent-decoded path segments
@@ -647,7 +659,7 @@ where
             // check if hiding files is disabled
             if !ARGS.serve_secret
                 // there is a configuration for this file, assume it should be served
-                && !self.metadata.lock().await.exists(&path)
+                && !self.metadata.lock().await.exists(url.host_str().unwrap(), &path)
                 // check if file or directory is hidden
                 && segments.any(|segment| segment.starts_with('.'))
             {
@@ -678,7 +690,7 @@ where
             }
         }
 
-        let data = self.metadata.lock().await.get(&path);
+        let data = self.metadata.lock().await.get(url.host_str().unwrap(), &path);
 
         if let PresetMeta::FullHeader(status, meta) = data {
             self.send_header(status, &meta).await?;

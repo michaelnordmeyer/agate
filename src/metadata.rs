@@ -4,10 +4,10 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-static SIDECAR_FILENAME: &str = ".meta";
+pub(crate) static SIDECAR_FILENAME: &str = ".meta";
 
 /// A struct to store a string of metadata for each file retrieved from
-/// sidecar files called `.lang`.
+/// sidecar files called `.meta`.
 ///
 /// These sidecar file's lines should have the format
 /// ```text
@@ -70,9 +70,9 @@ impl FileOptions {
 
     /// Checks wether the database for the directory of the specified file is
     /// still up to date and re-reads it if outdated or not yet read.
-    fn update(&mut self, file: &Path) {
+    fn update(&mut self, hostname: &str, file: &Path) {
         let mut db = if super::ARGS.central_config {
-            super::ARGS.content_dir.clone()
+            super::ARGS.content_dir.clone().join(hostname)
         } else {
             file.parent().expect("no parent directory").to_path_buf()
         };
@@ -220,16 +220,16 @@ impl FileOptions {
     /// The file path should consistenly be either absolute or relative to the
     /// working/content directory. If inconsistent file paths are used, this can
     /// lead to loading and storing sidecar files multiple times.
-    pub fn get(&mut self, file: &Path) -> PresetMeta {
-        self.update(file);
+    pub fn get(&mut self, hostname: &str, file: &Path) -> PresetMeta {
+        self.update(hostname, file);
 
         self.file_meta.get(file).unwrap_or(&self.default).clone()
     }
 
     /// Returns true if a configuration exists in a configuration file.
     /// Returns false if no or only the default value exists.
-    pub fn exists(&mut self, file: &Path) -> bool {
-        self.update(file);
+    pub fn exists(&mut self, hostname: &str, file: &Path) -> bool {
+        self.update(hostname, file);
 
         self.file_meta.contains_key(file)
     }

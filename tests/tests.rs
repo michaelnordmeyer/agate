@@ -156,7 +156,7 @@ fn index_page() {
         Some(
             std::fs::read_to_string(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/tests/data/content/index.gmi"
+                "/tests/data/content/localhost/index.gmi"
             ))
             .unwrap()
         )
@@ -233,7 +233,7 @@ fn symlink_page() {
         Some(
             std::fs::read_to_string(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/tests/data/content/index.gmi"
+                "/tests/data/content/localhost/index.gmi"
             ))
             .unwrap()
         )
@@ -299,7 +299,7 @@ fn meta_param() {
 /// - globs in the configuration file work correctly
 /// - distributed configuration file is used when `-C` flag not used
 fn glob() {
-    let page = get(&[], "gemini://localhost/testdir/a.nl.gmi").expect("could not get page");
+    let page = get(&[], "gemini://localhost/meta-testdir/a.nl.gmi").expect("could not get page");
 
     assert_eq!(
         page.header,
@@ -314,7 +314,7 @@ fn glob() {
 /// - double globs (i.e. `**`) work correctly in the configuration file
 /// - central configuration file is used when `-C` flag is used
 fn doubleglob() {
-    let page = get(&["-C"], "gemini://localhost/testdir/a.nl.gmi").expect("could not get page");
+    let page = get(&["-C"], "gemini://localhost/meta-testdir/a.nl.gmi").expect("could not get page");
 
     assert_eq!(
         page.header,
@@ -342,11 +342,7 @@ fn full_header_preset() {
 #[test]
 /// - URLS with fragments are rejected
 fn fragment() {
-    let page = get(
-        &["--hostname", "example.com"],
-        "gemini://example.com/#fragment",
-    )
-    .expect("could not get page");
+    let page = get(&["--hostname", "example.com"], "gemini://example.com/#fragment").expect("could not get page");
 
     assert_eq!(page.header.status, Status::BadRequest);
 }
@@ -354,8 +350,7 @@ fn fragment() {
 #[test]
 /// - URLS with username are rejected
 fn username() {
-    let page = get(&["--hostname", "example.com"], "gemini://user@example.com/")
-        .expect("could not get page");
+    let page = get(&["--hostname", "example.com"], "gemini://user@example.com/").expect("could not get page");
 
     assert_eq!(page.header.status, Status::BadRequest);
 }
@@ -448,44 +443,81 @@ fn port_check_skipped() {
     assert_eq!(page.header.status, Status::Success);
 }
 
-#[test]
-/// - status for paths with hidden segments is "gone" if file does not exist
-fn secret_nonexistent() {
-    let page = get(&[], "gemini://localhost/.non-existing-secret").expect("could not get page");
+mod secrets {
+    use super::*;
 
-    assert_eq!(page.header.status, Status::Gone);
-}
+    #[test]
+    /// - status for paths with hidden segments is "gone" if file does not exist
+    fn secret_nonexistent() {
+        let page = get(&[], "gemini://localhost/.non-existing-secret").expect("could not get page");
 
-#[test]
-/// - status for paths with hidden segments is "gone" if file exists
-fn secret_exists() {
-    let page = get(&[], "gemini://localhost/.meta").expect("could not get page");
+        assert_eq!(page.header.status, Status::Gone);
+    }
 
-    assert_eq!(page.header.status, Status::Gone);
-}
+    #[test]
+    /// - status for paths with hidden segments is "gone" if file exists
+    fn secret_exists() {
+        let page = get(&[], "gemini://localhost/.meta").expect("could not get page");
+        // let page = get(&[], &format!("gemini://localhost/{}", SIDECAR_FILENAME)).expect("could not get page");
 
-#[test]
-/// - secret file served if `--serve-secret` is enabled
-fn serve_secret() {
-    let page = get(&["--serve-secret"], "gemini://localhost/.meta").expect("could not get page");
+        assert_eq!(page.header.status, Status::Gone);
+    }
 
-    assert_eq!(page.header.status, Status::Success);
-}
+    #[test]
+    /// - status for paths with hidden segments is "gone" if file exists in subdir
+    fn secret_subdir_exists_with_file() {
+        let page = get(&[], "gemini://localhost/.well-known/file").expect("could not get page");
 
-#[test]
-/// - secret file served if path is in sidecar
-fn serve_secret_meta_config() {
-    let page = get(&[], "gemini://localhost/.servable-secret").expect("could not get page");
+        assert_eq!(page.header.status, Status::Gone);
+    }
 
-    assert_eq!(page.header.status, Status::Success);
-}
+    #[test]
+    /// - secret file served if `--serve-secret` is enabled
+    fn serve_secret() {
+        let page = get(&["--serve-secret"], "gemini://localhost/.meta").expect("could not get page");
 
-#[test]
-/// - secret file served if path with subdir is in sidecar
-fn serve_secret_meta_config_subdir() {
-    let page = get(&["-C"], "gemini://localhost/.well-known/servable-secret").expect("could not get page");
+        assert_eq!(page.header.status, Status::Success);
+    }
 
-    assert_eq!(page.header.status, Status::Success);
+    #[test]
+    /// - secret file in subdir served if `--serve-secret` is enabled
+    fn serve_secret_subdir_with_file() {
+        let page = get(&["--serve-secret"], "gemini://localhost/.well-known/file").expect("could not get page");
+
+        assert_eq!(page.header.status, Status::Success);
+    }
+
+    #[test]
+    /// - secret file served if path is in sidecar
+    fn serve_secret_in_meta_config() {
+        let page = get(&[""], "gemini://localhost/.secret").expect("could not get page");
+
+        assert_eq!(page.header.status, Status::Success);
+    }
+
+    #[test]
+    /// - secret file served if path is in sidecar
+    fn serve_secret_central_config() {
+        let page = get(&["-C"], "gemini://localhost/meta-testdir/.meta").expect("could not get page");
+
+        assert_eq!(page.header.status, Status::Success);
+    }
+
+    #[test]
+    /// - file served if path with secret subdir is in sidecar
+    fn serve_secret_subdir_with_file_central_config() {
+        let page = get(&["-C"], "gemini://localhost/.well-known/file").expect("could not get page");
+
+        assert_eq!(page.header.status, Status::Success);
+    }
+
+    // #[test]
+    // /// - file served if path with secret subdir is in sidecar
+    // fn fail_secret_subdir_with_file_central_config() {
+    //     let page = get(&[], "gemini://localhost/../localhost/index.gmi").expect("could not get page");
+
+    //     assert_eq!(page.header.status, Status::Success);
+    // }
 }
 
 #[test]
@@ -504,7 +536,7 @@ fn directory_traversal_regression() {
         .push("directory_traversal.gmi");
 
     let mut relative_escape_path = PathBuf::new();
-    relative_escape_path.push("testdir");
+    relative_escape_path.push("meta-testdir");
     relative_escape_path.push("..");
     relative_escape_path.push("..");
     let mut relative = base;
