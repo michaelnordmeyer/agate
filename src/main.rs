@@ -623,7 +623,7 @@ where
 
         // basic vhosts, existence of host_str was checked by parse_request already
         path.push(url.host_str().expect("no hostname"));
-        log::info!("Applicable root path: {:?}", path);
+        log::debug!("Applicable root path: {:?}", path);
 
         if let Some(mut segments) = url.path_segments() {
             // append percent-decoded path segments
