@@ -45,6 +45,7 @@ fn main() {
         // by default only turn on logging for agate
         env_logger::Env::default().default_filter_or("agate=info"),
     )
+    .target(Target::Stdout);
     .init();
     Runtime::new()
         .expect("could not start tokio runtime")
