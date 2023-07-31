@@ -4,6 +4,7 @@ mod certificates;
 mod codes;
 mod metadata;
 use codes::*;
+use env_logger::Target;
 use metadata::{FileOptions, PresetMeta, SIDECAR_FILENAME};
 
 use {
@@ -45,7 +46,7 @@ fn main() {
         // by default only turn on logging for agate
         env_logger::Env::default().default_filter_or("agate=info"),
     )
-    .target(Target::Stdout);
+    .target(Target::Stdout)
     .init();
     Runtime::new()
         .expect("could not start tokio runtime")
