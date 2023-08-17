@@ -120,12 +120,12 @@ Rules can overwrite other rules, so if a file is matched by multiple rules, the 
 
 1. empty  
     Agate will not send a default language parameter, even if it was specified on the command line.
-1. starting with a semicolon followed by MIME parameters  
+1. starting with a semicolon followed by MIME parameters
     Agate will append the specified string onto the detected MIME type, if the file is found.
-1. a MIME type, may include parameters  
+1. a MIME type, may include parameters
     Agate will use this MIME type instead of what it would guess, if the file is found.
     The default language parameter will not be used, even if it was specified on the command line.
-1. starting with a gemini status code (i.e. a digit 1-6 inclusive followed by another digit) and a space  
+1. starting with a gemini status code (i.e. a digit 1-6 inclusive followed by another digit) and a space
     Agate will send the metadata whether the file exists or not. The file will not be sent or accessed.
 
 If a line violates the format or looks like case 3, but is incorrect, it might be ignored. You should check your logs. Please know that this configuration file is first read when a file from the respective directory is accessed. So no log messages after startup does not mean the `.meta` file is okay.
