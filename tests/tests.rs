@@ -8,6 +8,13 @@ use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicU16, Ordering};
 use url::Url;
 
+//extern crate metadata;
+// use agate::SIDECAR_FILENAME;
+// use agate::metadata::SIDECAR_FILENAME;
+// use agate::metadata::PresetMeta;
+// use metadata::SIDECAR_FILENAME;
+// use metadata::PresetMeta;
+
 static BINARY_PATH: &str = env!("CARGO_BIN_EXE_agate");
 
 static DEFAULT_PORT: u16 = 1965;

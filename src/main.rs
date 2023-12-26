@@ -4,7 +4,6 @@ mod certificates;
 mod codes;
 mod metadata;
 use codes::*;
-use env_logger::Target;
 use metadata::{FileOptions, PresetMeta, SIDECAR_FILENAME};
 
 use {
@@ -46,7 +45,11 @@ fn main() {
         // by default only turn on logging for agate
         env_logger::Env::default().default_filter_or("agate=info"),
     )
-    .target(Target::Stdout)
+    .target(env_logger::Target::Stdout)
+    .format(|buf, record| {
+        let ts = buf.timestamp();
+        writeln!(buf, "[{} {}] {}", ts, record.level(), record.args())
+    })
     .init();
     Runtime::new()
         .expect("could not start tokio runtime")
@@ -447,26 +450,39 @@ impl RequestHandle<TcpStream> {
     /// Creates a new request handle for the given stream. If establishing the TLS
     /// session fails, returns a corresponding log line.
     async fn new(stream: TcpStream, metadata: Arc<Mutex<FileOptions>>) -> Result<Self, String> {
-        let local_addr = stream.local_addr().unwrap().to_string();
+        // let local_addr = stream.local_addr().unwrap().to_string();
 
+        let peer_addr_ip = stream
+            .peer_addr()
+            .map_err(|_| {
+                format!(
+                    // use nonexistent status code 01 if peer IP is unknown
+                    // "{local_addr} - \"\" 01 \"IP error\" error:could not get peer address",
+                    "- \"\" 01 \"IP error\" error:could not get peer address",
+                )
+            })?
+            .ip();
+        let peer_addr = format!("{}", peer_addr_ip);
         // try to get the remote IP address if desired
-        let peer_addr = if ARGS.log_ips {
-            stream
-                .peer_addr()
-                .map_err(|_| {
-                    format!(
-                        // use nonexistent status code 01 if peer IP is unknown
-                        "{local_addr} - \"\" 01 \"IP error\" error:could not get peer address",
-                    )
-                })?
-                .ip()
-                .to_string()
-        } else {
-            // Do not log IP address, but something else so columns still line up.
-            "-".into()
-        };
+        // let peer_addr = if ARGS.log_ips {
+        //     stream
+        //         .peer_addr()
+        //         .map_err(|_| {
+        //             format!(
+        //                 // use nonexistent status code 01 if peer IP is unknown
+        //                 // "{local_addr} - \"\" 01 \"IP error\" error:could not get peer address",
+        //                 "- \"\" 01 \"IP error\" error:could not get peer address",
+        //             )
+        //         })?
+        //         .ip()
+        //         .to_string()
+        // } else {
+        //     // Do not log IP address, but something else so columns still line up.
+        //     "-".into()
+        // };
 
-        let log_line = format!("{local_addr} {peer_addr}",);
+        // let log_line = format!("{local_addr} {peer_addr}",);
+        let log_line = format!("{peer_addr}",);
 
         let local_port_check = if ARGS.skip_port_check {
             None
@@ -589,12 +605,15 @@ where
         }
 
         // no userinfo and no fragment
-        if url.password().is_some() || !url.username().is_empty() || url.fragment().is_some() {
-            return Err((BAD_REQUEST, "URL contains fragment or userinfo"));
+        if !url.username().is_empty() || url.password().is_some() || url.fragment().is_some() {
+            return Err((BAD_REQUEST, "URL contains userinfo or fragment"));
         }
 
         // correct host
         if let Some(domain) = url.domain() {
+            if domain.eq("Michaelnordmeyer.com") || domain.eq("MichaelNordmeyer.com") || domain.eq("michaelNordmeyer.com") {
+                return Err((GONE, "Fix your host normalization"));
+            }
             // because the gemini scheme is not special enough for WHATWG, normalize
             // it ourselves
             let host = Host::parse(
