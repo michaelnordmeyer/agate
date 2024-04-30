@@ -462,7 +462,7 @@ impl RequestHandle<TcpStream> {
                 )
             })?
             .ip();
-        let peer_addr = format!("{}", peer_addr_ip);
+        let peer_addr = format!("{}", peer_addr_ip.to_canonical());
         // try to get the remote IP address if desired
         // let peer_addr = if ARGS.log_ips {
         //     stream
